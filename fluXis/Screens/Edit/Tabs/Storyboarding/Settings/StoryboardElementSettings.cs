@@ -7,6 +7,7 @@ using fluXis.Graphics.Sprites.Text;
 using fluXis.Graphics.UserInterface.Color;
 using fluXis.Screens.Edit.Tabs.Shared.Points.Settings;
 using fluXis.Screens.Edit.Tabs.Shared.Points.Settings.Preset;
+using fluXis.Screens.Edit.Tabs.Storyboarding.Points;
 using fluXis.Screens.Edit.Tabs.Storyboarding.Timeline.Blueprints;
 using fluXis.Scripting;
 using fluXis.Storyboards;
@@ -44,6 +45,9 @@ public partial class StoryboardElementSettings : CompositeDrawable
     };
 
     private FillFlowContainer flow;
+    private ClickableContainer animationSettingsWrapper;
+    private FillFlowContainer animationSettingsFlow;
+    private StoryboardAnimationContainer animationContainer;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -67,6 +71,40 @@ public partial class StoryboardElementSettings : CompositeDrawable
                     Direction = FillDirection.Vertical,
                     Padding = new MarginPadding(20),
                     Spacing = new Vector2(20)
+                }
+            },
+            animationSettingsWrapper = new ClickableContainer
+            {
+                RelativeSizeAxes = Axes.Both,
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Alpha = 0,
+                Masking = true,
+                Children = new Drawable[]
+                {
+                    new ClickableContainer
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Child = new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Theme.Background2,
+                            Size = new Vector2(1.5f)
+                        }
+                    },
+                    new FluXisScrollContainer
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        ScrollbarVisible = false,
+                        Child = animationSettingsFlow = new FillFlowContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical,
+                            Spacing = new Vector2(20),
+                            Padding = new MarginPadding(20)
+                        }
+                    }
                 }
             }
         };
@@ -345,6 +383,15 @@ public partial class StoryboardElementSettings : CompositeDrawable
                 }
 
                 flow.AddRange(drawables);
+
+                animationContainer = new StoryboardAnimationContainer
+                {
+                    Margin = new MarginPadding { Top = 10 },
+                    SettingsWrapper = animationSettingsWrapper,
+                    SettingsFlow = animationSettingsFlow
+                };
+
+                flow.Add(animationContainer);
                 break;
 
             case 2:

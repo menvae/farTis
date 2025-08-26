@@ -1,3 +1,4 @@
+using fluXis.Map.Structures.Bases;
 using fluXis.Utils;
 using Newtonsoft.Json;
 using osu.Framework.Graphics;
@@ -6,13 +7,19 @@ using SixLabors.ImageSharp;
 
 namespace fluXis.Storyboards;
 
-public class StoryboardAnimation : IDeepCloneable<StoryboardAnimation>
+public class StoryboardAnimation : IDeepCloneable<StoryboardAnimation>, IMapEvent, IHasDuration, IHasEasing
 {
     /// <summary>
     /// The start time of the animation.
     /// </summary>
     [JsonProperty("start")]
     public double StartTime { get; set; }
+    
+    public double Time // IMapEvent implementation
+    {
+        get => StartTime;
+        set => StartTime = value;
+    }
 
     [JsonIgnore]
     public double EndTime => StartTime + Duration;
@@ -48,17 +55,23 @@ public class StoryboardAnimation : IDeepCloneable<StoryboardAnimation>
     public string ValueEnd { get; set; }
 
     [JsonIgnore]
-    public float StartFloat => ValueStart.ToFloatInvariant();
+    public float StartFloat => string.IsNullOrEmpty(ValueStart) ? 0f : ValueStart.ToFloatInvariant();
 
     [JsonIgnore]
-    public float EndFloat => ValueEnd.ToFloatInvariant();
+    public float EndFloat => string.IsNullOrEmpty(ValueEnd) ? 0f : ValueEnd.ToFloatInvariant();
 
     [JsonIgnore]
     public Vector2 StartVector
     {
         get
         {
+            if (string.IsNullOrEmpty(ValueStart)) 
+                return Vector2.Zero;
+                
             var xy = ValueStart.Split(',');
+            if (xy.Length < 2) 
+                return Vector2.Zero;
+                
             return new Vector2(xy[0].ToFloatInvariant(), xy[1].ToFloatInvariant());
         }
     }
@@ -68,7 +81,13 @@ public class StoryboardAnimation : IDeepCloneable<StoryboardAnimation>
     {
         get
         {
+            if (string.IsNullOrEmpty(ValueEnd)) 
+                return Vector2.Zero;
+                
             var xy = ValueEnd.Split(',');
+            if (xy.Length < 2) 
+                return Vector2.Zero;
+                
             return new Vector2(xy[0].ToFloatInvariant(), xy[1].ToFloatInvariant());
         }
     }

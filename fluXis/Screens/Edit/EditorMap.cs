@@ -266,11 +266,17 @@ public class EditorMap : IVerifyContext
     private bool tryFindNotifier(ITimedObject obj, Action<IChangeNotifier> action)
     {
         var n = notifiers.FirstOrDefault(n => n.Matches(obj.GetType()));
+        var sbn = Storyboard.Elements.FirstOrDefault(n => n.Matches(obj.GetType()));
 
         if (n is not null)
             action?.Invoke(n);
+        else if (sbn is not null)
+            action?.Invoke(sbn);
 
-        return n != null;
+        if (sbn != null)
+            return sbn != null;
+        else
+            return n != null;
     }
 
     public void Add(ITimedObject obj)

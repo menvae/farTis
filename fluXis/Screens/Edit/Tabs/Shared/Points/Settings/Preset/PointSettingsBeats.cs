@@ -44,6 +44,8 @@ public abstract partial class PointSettingsBeats<T> : PointSettingsTextBox
             TextBox.Text = (diff / beatLength).ToStringInvariant("0.##");
             Value = diff;
             map.Update(Object);
+
+            OnTextChanged?.Invoke(TextBox);
         }
     };
 }

@@ -1,13 +1,16 @@
+using System;
 using System.Collections.Generic;
 using fluXis.Map.Structures.Bases;
 using fluXis.Utils.Attributes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
+using static fluXis.Screens.Edit.EditorMap;
 
 namespace fluXis.Storyboards;
 
-public class StoryboardElement : ITimedObject
+public class StoryboardElement : ITimedObject, IChangeNotifier
 {
     /// <summary>
     /// The type of the element.
@@ -74,6 +77,14 @@ public class StoryboardElement : ITimedObject
     [JsonIgnore]
     double ITimedObject.Time { get => StartTime; set => StartTime = value; }
 
+    public event Action<StoryboardAnimation> AnimationAdded;
+    public event Action<StoryboardAnimation> AnimationRemoved;
+    public event Action<StoryboardAnimation> AnimationUpdated;
+
+    public event Action<ITimedObject> OnAdd;
+    public event Action<ITimedObject> OnRemove;
+    public event Action<ITimedObject> OnUpdate;
+
     public T GetParameter<T>(string key, T fallback)
     {
         if (!Parameters.TryGetValue(key, out var token))
@@ -87,6 +98,40 @@ public class StoryboardElement : ITimedObject
         {
             return fallback;
         }
+    }
+
+    public void Add(ITimedObject obj)
+    {
+        var animation = (StoryboardAnimation)obj;
+        Animations.Add(animation);
+        AnimationAdded?.Invoke(animation);
+        OnAdd?.Invoke(animation);
+    }
+
+    public void ApplyOffset(float offset) => Animations.ForEach(x =>
+    {
+        x.StartTime += offset;
+    });
+
+    public bool Matches(Type type) => typeof(StoryboardAnimation) == type;
+
+    public void Remove(ITimedObject obj)
+    {
+        var animation = (StoryboardAnimation)obj;
+
+        if (OnRemove.IsNull() || AnimationRemoved.IsNull()) {}
+
+        Animations.Remove(animation);
+        AnimationRemoved?.Invoke(animation);
+        OnRemove?.Invoke(animation);
+    }
+
+    public void Update(ITimedObject obj)
+    {
+        var animation = (StoryboardAnimation)obj;
+
+        AnimationUpdated?.Invoke(animation);
+        OnUpdate?.Invoke(obj);
     }
 }
 

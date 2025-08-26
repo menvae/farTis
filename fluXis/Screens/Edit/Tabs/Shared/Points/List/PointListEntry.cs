@@ -31,6 +31,8 @@ public abstract partial class PointListEntry : Container, IHasContextMenu
     protected abstract string Text { get; }
     protected abstract Colour4 Color { get; }
 
+    protected bool WithTime = true;
+
     public MenuItem[] ContextMenuItems => new MenuItem[]
     {
         new MenuActionItem("Clone to current time", FontAwesome6.Solid.Clone, clone),
@@ -184,11 +186,10 @@ public abstract partial class PointListEntry : Container, IHasContextMenu
 
     protected virtual IEnumerable<Drawable> CreateSettings()
     {
-        return new Drawable[]
-        {
-            new PointSettingsTitle(Text, () => delete()),
-            new PointSettingsTime(Map, Object)
-        };
+        yield return new PointSettingsTitle(Text, () => delete());
+        
+        if (WithTime)
+            yield return new PointSettingsTime(Map, Object);
     }
 
     private void clone()

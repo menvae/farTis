@@ -23,6 +23,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
+using osu.Framework.Threading;
 using osuTK;
 
 namespace fluXis.Screens.Edit.Tabs.Shared.Points.List;
@@ -49,6 +50,8 @@ public abstract partial class PointsList : Container
     private FillFlowContainer<PointListEntry> flow;
 
     private Bindable<PointListEntry> currentEvent = new();
+
+    public ForcedHeightText Header;
 
     private SpriteIcon iconUp;
     private bool iconUpShown;
@@ -85,7 +88,7 @@ public abstract partial class PointsList : Container
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
-                            new ForcedHeightText()
+                            Header = new ForcedHeightText()
                             {
                                 Anchor = Anchor.TopLeft,
                                 Origin = Anchor.TopLeft,
@@ -357,7 +360,7 @@ public abstract partial class PointsList : Container
         var entry = flow.FirstOrDefault(e => e.Object == obj);
 
         if (entry != null)
-            flow.Remove(entry, true);
+            Scheduler.Add(() => flow.Remove(entry, true));
     }
 
     protected override void UpdateAfterChildren()

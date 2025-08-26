@@ -36,6 +36,8 @@ public partial class PointSettingsTime : PointSettingsTextBox
             TextBox.Text = t.ToStringInvariant("0");
             obj.Time = t;
             map.Update(obj);
+            
+            OnTextChanged?.Invoke(TextBox);
         }
     };
 }
