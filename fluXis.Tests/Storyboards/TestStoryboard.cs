@@ -29,8 +29,8 @@ public partial class TestStoryboard : FluXisTestScene
 
         Add(GlobalClock);
 
-        var set = maps.MapSets.FirstOrDefault(s => s.Metadata.Title == "My Love" && s.Metadata.Artist == "Raphlesia & BilliumMoto");
-        var map = set?.LowestDifficulty;
+        var map = GetTestMap(maps);
+        var (sbPath, sbDir) = GetSbPath();
 
         if (map is not null)
         {
@@ -38,12 +38,12 @@ public partial class TestStoryboard : FluXisTestScene
             GlobalClock.Stop();
         }
 
-        var data = File.ReadAllText(@"W:\osu-lazer\exports\mylove\Raphlesia & BilliumMoto - My Love (Mao).osb");
+        var data = File.ReadAllText(Program.TestSbPath);
 
         var parser = new OsuStoryboardParser();
         var storyboard = parser.Parse(data);
 
-        var drawable = new DrawableStoryboard(map?.GetMapInfo() ?? new MapInfo(), storyboard, @"W:\osu-lazer\exports\mylove\");
+        var drawable = new DrawableStoryboard(map?.GetMapInfo() ?? new MapInfo(), storyboard, sbDir);
         LoadComponent(drawable);
 
         Add(new Container

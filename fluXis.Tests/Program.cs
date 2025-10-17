@@ -9,6 +9,7 @@ public static class Program
     private static bool useStableData;
     public static string TestSetID { get; private set; }
     public static string TestMapID { get; private set; }
+    public static string TestSbPath { get; private set; }
 
     public static void Main(string[] args)
     {
@@ -18,6 +19,7 @@ public static class Program
         Logger.Log($"Using stable data: {useStableData}.");
         Logger.Log($"Test MapSet ID: {TestSetID}.");
         Logger.Log($"Test Map ID: {TestMapID}.");
+        Logger.Log($"Test Storyboard Path: {TestSbPath}.");
 
         using GameHost host = Host.GetSuitableDesktopHost(name);
         using var game = new FluXisTestBrowser("fluXis");
@@ -28,6 +30,7 @@ public static class Program
     {
         var inSet = false;
         var inMap = false;
+        var inSb = false;
 
         foreach (var arg in args)
         {
@@ -45,6 +48,13 @@ public static class Program
                 continue;
             }
 
+            if (inSb)
+            {
+                TestSbPath = arg;
+                inSb = false;
+                continue;
+            }
+
             switch (arg)
             {
                 case "--stable":
@@ -57,6 +67,10 @@ public static class Program
 
                 case "--test-map":
                     inMap = true;
+                    continue;
+
+                case "--test-sb":
+                    inSb = true;
                     continue;
             }
         }

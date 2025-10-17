@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using fluXis.Audio;
 using fluXis.Database.Maps;
@@ -65,6 +66,12 @@ public partial class FluXisTestScene : TestScene
             ? set.Maps.FirstOrDefault()
             : set.Maps.FirstOrDefault(m => m.ID == Guid.Parse(Program.TestMapID));
     }
+
+    /// <summary>
+    /// Returns (full path for sb, directory path for sb)
+    /// </summary>
+    /// <returns></returns>
+    protected static (string, string) GetSbPath() => (Program.TestSbPath, Path.GetDirectoryName(Program.TestSbPath));
 
     protected override ITestSceneTestRunner CreateRunner() => new FluXisTestSceneTestRunner();
 
