@@ -153,6 +153,9 @@ public class OsuStoryboardParser
             currentLoop = null;
         }
 
+        if (commandType == "T" || commandType == "P")
+            return;
+
         if (commandType == "L")
         {
             parseLoop(split);
