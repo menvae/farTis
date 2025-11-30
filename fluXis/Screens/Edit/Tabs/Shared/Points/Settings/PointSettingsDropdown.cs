@@ -6,6 +6,7 @@ using fluXis.Graphics.UserInterface.Menus;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
@@ -22,6 +23,9 @@ public partial class PointSettingsDropdown<T> : PointSettingsBase, IHasTooltip
 
     public Bindable<T> Bindable { get; set; }
 
+    protected Container TextContainer;
+    protected CustomDropdown Dropdown;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -36,14 +40,23 @@ public partial class PointSettingsDropdown<T> : PointSettingsBase, IHasTooltip
 
         InternalChildren = new Drawable[]
         {
-            new FluXisSpriteText
+            TextContainer = new Container
             {
-                Text = Text,
                 Anchor = Anchor.CentreLeft,
                 Origin = Anchor.CentreLeft,
-                WebFontSize = 16
+                AutoSizeAxes = Axes.Both,
+                Children = new[]
+                {
+                    new FluXisSpriteText
+                    {
+                        Text = Text,
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        WebFontSize = 16
+                    },
+                }
             },
-            new CustomDropdown
+            Dropdown = new CustomDropdown
             {
                 Width = 210,
                 Anchor = Anchor.CentreRight,
@@ -69,10 +82,12 @@ public partial class PointSettingsDropdown<T> : PointSettingsBase, IHasTooltip
 
     private void valueChanged(ValueChangedEvent<T> e) => OnValueChanged?.Invoke(e.NewValue);
 
-    private partial class CustomDropdown : FluXisDropdown<T>
+    protected partial class CustomDropdown : FluXisDropdown<T>
     {
         protected override DropdownHeader CreateHeader() => new CustomHeader();
         protected override DropdownMenu CreateMenu() => new CustomMenu();
+
+        public void UpdateLabel(string newLabel) => ((CustomHeader) Header).UpdateHeaderLabel(newLabel);
 
         private partial class CustomHeader : FluXisDropdownHeader
         {
@@ -83,6 +98,8 @@ public partial class PointSettingsDropdown<T> : PointSettingsBase, IHasTooltip
                 CornerRadius = 5;
                 Foreground.Padding = new MarginPadding { Horizontal = 10 };
             }
+
+            public void UpdateHeaderLabel(string newLabel) => Label = newLabel;
 
             protected override DropdownSearchBar CreateSearchBar() => new CustomSearch(UpdateOpenState);
 
