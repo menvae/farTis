@@ -125,67 +125,81 @@ public partial class StoryboardAnimationEntry : CompositeDrawable, IHasPopover
         return true;
     }
 
-    public Popover GetPopover() => new FluXisPopover
+    public Popover GetPopover()
     {
-        OnClose = () => isSelected.Value = false,
-        Child = new FillFlowContainer
+        var commitEvalType = getAnimPrimitiveType();
+
+        return new FluXisPopover
         {
-            Width = 380,
-            Direction = FillDirection.Vertical,
-            AutoSizeAxes = Axes.Y,
-            Spacing = new Vector2(12),
-            Children = new Drawable[]
+            OnClose = () => isSelected.Value = false,
+            Child = new FillFlowContainer
             {
-                new EditorVariableTitle(Animation.Type.GetDescription(), () => RequestRemove?.Invoke(Animation), false),
-                new EditorVariableTime(map, Animation),
-                new EditorVariableLength<StoryboardAnimation>(map, Animation, beatLength),
-                new EditorVariableTextBox
+                Width = 380,
+                Direction = FillDirection.Vertical,
+                AutoSizeAxes = Axes.Y,
+                Spacing = new Vector2(12),
+                Children = new Drawable[]
                 {
-                    Text = "Start Value",
-                    CurrentValue = Animation.ValueStart,
-                    OnValueChanged = t =>
+                    new EditorVariableTitle(Animation.Type.GetDescription(), () => RequestRemove?.Invoke(Animation), false),
+                    new EditorVariableTime(map, Animation),
+                    new EditorVariableLength<StoryboardAnimation>(map, Animation, beatLength),
+                    new EditorVariableTextBox
                     {
-                        if (validate(t.Text)) Animation.ValueStart = t.Text;
-                        else t.NotifyError();
+                        Text = "Start Value",
+                        CurrentValue = Animation.ValueStart,
+                        CommitEvalType = commitEvalType,
+                        OnValueChanged = t =>
+                        {
+                            if (validate(t.Text)) Animation.ValueStart = t.Text;
+                            else t.NotifyError();
 
-                        map.Update(Animation);
-                    }
-                },
-                new EditorVariableTextBox
-                {
-                    Text = "End Value",
-                    CurrentValue = Animation.ValueEnd,
-                    OnValueChanged = t =>
+                            map.Update(Animation);
+                        }
+                    },
+                    new EditorVariableTextBox
                     {
-                        if (validate(t.Text)) Animation.ValueEnd = t.Text;
-                        else t.NotifyError();
+                        Text = "End Value",
+                        CurrentValue = Animation.ValueEnd,
+                        CommitEvalType = commitEvalType,
+                        OnValueChanged = t =>
+                        {
+                            if (validate(t.Text)) Animation.ValueEnd = t.Text;
+                            else t.NotifyError();
 
-                        map.Update(Animation);
-                    }
-                },
-                new EditorVariableEasing<StoryboardAnimation>(map, Animation),
+                            map.Update(Animation);
+                        }
+                    },
+                    new EditorVariableEasing<StoryboardAnimation>(map, Animation),
+                }
             }
-        }
+        };
+    }
+
+    private Type getAnimPrimitiveType() => Animation.Type switch
+    {
+        StoryboardAnimationType.MoveX or
+        StoryboardAnimationType.MoveY or
+        StoryboardAnimationType.Scale or
+        StoryboardAnimationType.Width or
+        StoryboardAnimationType.Height or
+        StoryboardAnimationType.Rotate or
+        StoryboardAnimationType.Fade or
+        StoryboardAnimationType.Border => typeof(float),
+        _ => null
     };
 
     private bool validate(string input)
     {
+        var evalType = getAnimPrimitiveType();
+
+        if (evalType is not null)
+            return input.TryEvaluateTo(evalType, out _);
+
         switch (Animation.Type)
         {
-            case StoryboardAnimationType.MoveX:
-            case StoryboardAnimationType.MoveY:
-            case StoryboardAnimationType.Scale:
-            case StoryboardAnimationType.Width:
-            case StoryboardAnimationType.Height:
-            case StoryboardAnimationType.Rotate:
-            case StoryboardAnimationType.Fade:
-            case StoryboardAnimationType.Border:
-                return input.TryParseFloatInvariant(out _);
-
             case StoryboardAnimationType.ScaleVector:
                 var split = input.Split(",");
                 if (split.Length != 2) return false;
-
                 return split.All(x => x.TryParseFloatInvariant(out _));
 
             case StoryboardAnimationType.Color:

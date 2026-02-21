@@ -475,13 +475,14 @@ public partial class StoryboardElementSettings : CompositeDrawable
                                     CurrentValue = item.GetParameter(parameter.Key, parameter.GetDefaultFallback<int>()).ToString(),
                                     OnValueChanged = box =>
                                     {
-                                        if (box.Text.TryParseIntInvariant(out var result))
+                                        if (box.Text.TryEvaluateTo<int>(out var result))
                                             item.Parameters[parameter.Key] = result;
                                         else
                                             box.NotifyError();
 
                                         map.Update(item);
-                                    }
+                                    },
+                                    CommitEvalType = typeof(int)
                                 });
                             }
                             else if (parameter.Type == typeof(float))
@@ -492,13 +493,14 @@ public partial class StoryboardElementSettings : CompositeDrawable
                                     CurrentValue = item.GetParameter(parameter.Key, parameter.GetDefaultFallback<float>()).ToStringInvariant(),
                                     OnValueChanged = box =>
                                     {
-                                        if (box.Text.TryParseFloatInvariant(out var result))
+                                        if (box.Text.TryEvaluateTo<float>(out var result))
                                             item.Parameters[parameter.Key] = result;
                                         else
                                             box.NotifyError();
 
                                         map.Update(item);
-                                    }
+                                    },
+                                    CommitEvalType = typeof(float)
                                 });
                             }
                             else if (parameter.Type == typeof(bool))
