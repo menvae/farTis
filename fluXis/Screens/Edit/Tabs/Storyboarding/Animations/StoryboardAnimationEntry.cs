@@ -150,9 +150,8 @@ public partial class StoryboardAnimationEntry : CompositeDrawable, IHasPopover
                         CommitEvalType = commitEvalType,
                         OnValueChanged = t =>
                         {
-                            if (validate(t.Text)) Animation.ValueStart = t.Text;
+                            if (validate(t.Text, out var parsed)) Animation.ValueStart = parsed;
                             else t.NotifyError();
-
                             map.Update(Animation);
                         }
                     },
@@ -163,7 +162,7 @@ public partial class StoryboardAnimationEntry : CompositeDrawable, IHasPopover
                         CommitEvalType = commitEvalType,
                         OnValueChanged = t =>
                         {
-                            if (validate(t.Text)) Animation.ValueEnd = t.Text;
+                            if (validate(t.Text, out var parsed)) Animation.ValueEnd = parsed;
                             else t.NotifyError();
 
                             map.Update(Animation);
@@ -188,12 +187,20 @@ public partial class StoryboardAnimationEntry : CompositeDrawable, IHasPopover
         _ => null
     };
 
-    private bool validate(string input)
+    private bool validate(string input, out string outStr)
     {
+        outStr = input;
+
         var evalType = getAnimPrimitiveType();
 
         if (evalType is not null)
-            return input.TryEvaluateTo(evalType, out _);
+        {
+            if (!input.TryEvaluateTo(evalType, out var result))
+                return false;
+
+            outStr = result.ToString();
+            return true;
+        }
 
         switch (Animation.Type)
         {
