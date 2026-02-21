@@ -125,54 +125,57 @@ public partial class StoryboardAnimationEntry : CompositeDrawable, IHasPopover
         return true;
     }
 
-    public Popover GetPopover()
+    public Popover GetPopover() => new FluXisPopover
     {
-        var commitEvalType = getAnimPrimitiveType();
-
-        return new FluXisPopover
+        OnClose = () => isSelected.Value = false,
+        Child = new FillFlowContainer
         {
-            OnClose = () => isSelected.Value = false,
-            Child = new FillFlowContainer
+            Width = 380,
+            Direction = FillDirection.Vertical,
+            AutoSizeAxes = Axes.Y,
+            Spacing = new Vector2(12),
+            Children = new Drawable[]
             {
-                Width = 380,
-                Direction = FillDirection.Vertical,
-                AutoSizeAxes = Axes.Y,
-                Spacing = new Vector2(12),
-                Children = new Drawable[]
+                new EditorVariableTitle(Animation.Type.GetDescription(), () => RequestRemove?.Invoke(Animation), false),
+                new EditorVariableTime(map, Animation),
+                new EditorVariableLength<StoryboardAnimation>(map, Animation, beatLength),
+                new EditorVariableTextBox
                 {
-                    new EditorVariableTitle(Animation.Type.GetDescription(), () => RequestRemove?.Invoke(Animation), false),
-                    new EditorVariableTime(map, Animation),
-                    new EditorVariableLength<StoryboardAnimation>(map, Animation, beatLength),
-                    new EditorVariableTextBox
+                    Text = "Start Value",
+                    CurrentValue = Animation.ValueStart,
+                    OnValueChanged = t =>
                     {
-                        Text = "Start Value",
-                        CurrentValue = Animation.ValueStart,
-                        CommitEvalType = commitEvalType,
-                        OnValueChanged = t =>
-                        {
-                            if (validate(t.Text, out var parsed)) Animation.ValueStart = parsed;
-                            else t.NotifyError();
-                            map.Update(Animation);
-                        }
+                        if (validate(t.Text, out var parsed)) Animation.ValueStart = parsed;
+                        else t.NotifyError();
+                        map.Update(Animation);
                     },
-                    new EditorVariableTextBox
+                    OnCommit = t =>
                     {
-                        Text = "End Value",
-                        CurrentValue = Animation.ValueEnd,
-                        CommitEvalType = commitEvalType,
-                        OnValueChanged = t =>
-                        {
-                            if (validate(t.Text, out var parsed)) Animation.ValueEnd = parsed;
-                            else t.NotifyError();
+                        if (t is not null && validate(t.Text, out var parsed)) t.Text = parsed;
+                        else t.NotifyError();
+                    }
+                },
+                new EditorVariableTextBox
+                {
+                    Text = "End Value",
+                    CurrentValue = Animation.ValueEnd,
+                    OnValueChanged = t =>
+                    {
+                        if (validate(t.Text, out var parsed)) Animation.ValueEnd = parsed;
+                        else t.NotifyError();
 
-                            map.Update(Animation);
-                        }
+                        map.Update(Animation);
                     },
-                    new EditorVariableEasing<StoryboardAnimation>(map, Animation),
-                }
+                    OnCommit = t =>
+                    {
+                        if (t is not null && validate(t.Text, out var parsed)) t.Text = parsed;
+                        else t.NotifyError();
+                    }
+                },
+                new EditorVariableEasing<StoryboardAnimation>(map, Animation),
             }
-        };
-    }
+        }
+    };
 
     private Type getAnimPrimitiveType() => Animation.Type switch
     {
@@ -207,7 +210,13 @@ public partial class StoryboardAnimationEntry : CompositeDrawable, IHasPopover
             case StoryboardAnimationType.ScaleVector:
                 var split = input.Split(",");
                 if (split.Length != 2) return false;
-                return split.All(x => x.TryParseFloatInvariant(out _));
+
+                if (!split[0].TryEvaluateTo(typeof(float), out var x) ||
+                    !split[1].TryEvaluateTo(typeof(float), out var y))
+                    return false;
+
+                outStr = $"{x},{y}";
+                return true;
 
             case StoryboardAnimationType.Color:
                 return Colour4.TryParseHex(input, out _);
