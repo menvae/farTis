@@ -27,6 +27,11 @@ function StoryboardCircle() end
 ---@nodiscard
 function StoryboardOutlineCircle() end
 
+---@param str SkinSprite
+---@return StoryboardSkinSprite
+---@nodiscard
+function StoryboardSkinSprite(str) end
+
 ---@class settings
 ---@field scrollspeed number
 ---@field upscroll boolean
@@ -51,6 +56,7 @@ metadata = {}
 ---@field y number
 ---@field z number
 ---@field blend boolean
+---@field blendMode number
 ---@field width number
 ---@field height number
 ---@field color number
@@ -80,6 +86,12 @@ local __StoryboardCircle = {}
 ---@class StoryboardOutlineCircle: StoryboardElement
 local __StoryboardOutlineCircle = {}
 
+---@class StoryboardSkinSprite: StoryboardElement
+---@field sprite number
+---@field lane number
+---@field keycount number
+local __StoryboardSkinSprite = {}
+
 ---@class StoryboardSprite: StoryboardElement
 ---@field texture string
 local __StoryboardSprite = {}
@@ -100,6 +112,24 @@ local __StoryboardText = {}
 ---| "Fade"
 ---| "Color"
 ---| "Border"
+
+---@alias SkinSprite string
+---| "HitObject"
+---| "LongNoteStart"
+---| "LongNoteBody"
+---| "LongNoteEnd"
+---| "TickNote"
+---| "TickNoteSmall"
+---| "Receptor"
+---| "StageBackground"
+---| "StageBackgroundTop"
+---| "StageBackgroundBottom"
+---| "StageLeftTop"
+---| "StageLeft"
+---| "StageLeftBottom"
+---| "StageRightTop"
+---| "StageRight"
+---| "StageRightBottom"
 
 ---@alias LayerName string
 ---| "Background"

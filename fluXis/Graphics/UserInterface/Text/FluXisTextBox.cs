@@ -5,20 +5,31 @@ using fluXis.Audio;
 using fluXis.Graphics.Drawables;
 using fluXis.Graphics.Sprites.Text;
 using fluXis.Graphics.UserInterface.Color;
+using fluXis.Integration;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
+using osu.Framework.Platform;
 using osuTK;
 using osuTK.Graphics;
 
 namespace fluXis.Graphics.UserInterface.Text;
 
-public partial class FluXisTextBox : BasicTextBox
+public partial class FluXisTextBox : BasicTextBox, IHasCursorType
 {
+    [CanBeNull]
+    [Resolved(CanBeNull = true)]
+    private ISteamManager steam { get; set; }
+
+    CursorType IHasCursorType.Cursor =>
+        /* fix for dropdowns because they are set to AlwaysVisible */
+        Parent!.Alpha > 0 ? CursorType.TextSelection : CursorType.Ignore;
+
     protected override Color4 SelectionColour => Theme.Background6;
     protected override Color4 InputErrorColour => Theme.ButtonRed;
     protected override float LeftRightPadding => SidePadding;
@@ -48,7 +59,7 @@ public partial class FluXisTextBox : BasicTextBox
         set => BackgroundFocused = value;
     }
 
-    private KeyboardSamples samples { get; set; } = new();
+    private KeyboardSamples samples { get; } = new();
 
     public FluXisTextBox()
     {
@@ -118,6 +129,7 @@ public partial class FluXisTextBox : BasicTextBox
     }
 
     public void NotifyError() => NotifyInputError();
+    public void RemoveFocus() => KillFocus();
 
     protected override void NotifyInputError()
     {
@@ -129,12 +141,14 @@ public partial class FluXisTextBox : BasicTextBox
     {
         base.OnFocus(e);
         OnFocusAction?.Invoke();
+        steam?.OpenKeyboard(this);
     }
 
     protected override void OnFocusLost(FocusLostEvent e)
     {
         base.OnFocusLost(e);
         OnFocusLostAction?.Invoke();
+        steam?.CloseKeyboard();
     }
 
     protected override Drawable GetDrawableCharacter(char c)

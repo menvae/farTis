@@ -5,15 +5,19 @@ using fluXis.Graphics.UserInterface.Color;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
+using osu.Framework.Platform;
 using osuTK;
 
 namespace fluXis.Graphics.UserInterface.Menus.Draw;
 
-public abstract partial class DrawableFluXisMenuItem<T> : Menu.DrawableMenuItem
+public abstract partial class DrawableFluXisMenuItem<T> : Menu.DrawableMenuItem, IHasCursorType
     where T : FluXisMenuItem
 {
+    CursorType IHasCursorType.Cursor => Item.Action.Value != null && isEnabled ? CursorType.Hand : CursorType.Ignore;
+
     protected new T Item => base.Item as T;
     private bool isEnabled => Item.IsEnabled?.Invoke() ?? true;
 
@@ -32,13 +36,13 @@ public abstract partial class DrawableFluXisMenuItem<T> : Menu.DrawableMenuItem
         Foreground.Origin = Anchor.CentreLeft;
 
         BackgroundColour = Colour4.Transparent;
-        BackgroundColourHover = Theme.Text.Opacity(.2f);
+        BackgroundColourHover = (Item.Color ?? Theme.Text).Opacity(.2f);
 
         ForegroundColour = ForegroundColourHover = Item.Type switch
         {
             MenuItemType.Highlighted => Theme.Highlight,
             MenuItemType.Dangerous => Theme.Red,
-            _ => Colour4.White
+            _ => Item.Color ?? Colour4.White
         };
     }
 

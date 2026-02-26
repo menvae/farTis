@@ -38,6 +38,11 @@
 ---| "InOutBounce"
 ---| "OutPow10"
 
+---@param input Easing
+---@return number
+---@nodiscard
+function Easing(input) end
+
 ---@alias AnchorName string
 ---| "TopLeft"
 ---| "TopCentre"
@@ -54,7 +59,43 @@
 ---@nodiscard
 function Anchor(input) end
 
+---@alias BlendMode string
+---| "None"
+---| "Inherit"
+---| "Mix"
+---| "Difference"
+---| "Add"
+---| "Subtract"
+---| "Screen"
+---| "Multiply"
+---| "Premultiplied"
+
+---@param input BlendMode
+---@return number
+---@nodiscard
+function BlendMode(input) end
+
+---@alias EventType string
+---| "BeatPulse"
+---| "ColorFade"
+---| "Flash"
+---| "LaneSwitch"
+---| "LayerFade"
+---| "Pulse"
+---| "Shader"
+---| "Shake"
+---| "HitObjectEase"
+---| "ScrollMultiplier"
+---| "TimeOffset"
+---| "PlayfieldMove"
+---| "PlayfieldRotate"
+---| "PlayfieldScale"
+---| "CameraMove"
+---| "CameraRotate"
+---| "CameraScale"
+
 ---@alias ParameterDefinitionType string
 ---| "string"
 ---| "int"
 ---| "float"
+---| "boolean"

@@ -32,6 +32,7 @@ public partial class RulesetContainer : CompositeDrawable
     public GameplayInput Input { get; }
     public PlayfieldManager PlayfieldManager { get; }
 
+    public virtual bool AsyncScoreCalculations => false;
     public HitWindows HitWindows { get; private set; }
     public ReleaseWindows ReleaseWindows { get; private set; }
 
@@ -149,7 +150,10 @@ public partial class RulesetContainer : CompositeDrawable
             else
             {
                 foreach (var group in ev.Groups)
-                    ev.Apply(scrolls[group]);
+                {
+                    if (scrolls.TryGetValue(group, out var scroll))
+                        ev.Apply(scroll);
+                }
             }
         }
 

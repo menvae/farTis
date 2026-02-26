@@ -2,6 +2,7 @@ using fluXis.Configuration;
 using fluXis.Graphics.Sprites.Icons;
 using fluXis.Graphics.Sprites.Text;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -18,7 +19,9 @@ public partial class SettingsSubSection : FillFlowContainer
     public virtual LocalisableString Title => "Subsection";
     public virtual IconUsage Icon => FontAwesome6.Solid.AngleRight;
 
-    protected Container RightSide { get; private set; }
+    public BindableBool Visible { get; } = new(true);
+
+    protected FillFlowContainer RightSide { get; private set; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -60,13 +63,21 @@ public partial class SettingsSubSection : FillFlowContainer
                         }
                     }
                 },
-                RightSide = new Container
+                RightSide = new FillFlowContainer
                 {
                     AutoSizeAxes = Axes.Both,
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(8)
                 }
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+        Visible.BindValueChanged(v => Alpha = v.NewValue ? 1f : 0f, true);
     }
 }

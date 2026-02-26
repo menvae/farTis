@@ -47,6 +47,9 @@ public class MapInfo
     [JsonProperty("ls-v2")]
     public bool NewLaneSwitchLayout { get; set; }
 
+    [JsonProperty("force-169")]
+    public bool Force16By9 { get; set; }
+
     [JsonProperty("editor-time")]
     public long TimeInEditor { get; set; }
 
@@ -54,7 +57,7 @@ public class MapInfo
     public int ExtraPlayfields
     {
         get => extraPlayfields;
-        set => extraPlayfields = Math.Clamp(value, 0, 5);
+        set => extraPlayfields = Math.Clamp(value, 0, 9);
     }
 
     [JsonIgnore]

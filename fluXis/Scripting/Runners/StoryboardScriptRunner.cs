@@ -2,8 +2,10 @@
 using fluXis.Map;
 using fluXis.Scripting.Attributes;
 using fluXis.Scripting.Models;
+using fluXis.Scripting.Models.Skinning;
 using fluXis.Scripting.Models.Storyboarding;
 using fluXis.Scripting.Models.Storyboarding.Elements;
+using fluXis.Skinning;
 using fluXis.Storyboards;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
@@ -18,7 +20,7 @@ public class StoryboardScriptRunner : ScriptRunner
     [LuaGlobal(Name = "screen")]
     public LuaVector2 ScreenResolution { get; }
 
-    public StoryboardScriptRunner(MapInfo map, Storyboard storyboard, LuaSettings settings)
+    public StoryboardScriptRunner(MapInfo map, Storyboard storyboard, LuaSettings settings, ISkin skin)
     {
         this.storyboard = storyboard;
         Map = map;
@@ -27,6 +29,8 @@ public class StoryboardScriptRunner : ScriptRunner
         AddField("screen", ScreenResolution);
         AddField("metadata", new LuaMetadata(map));
         AddField("settings", settings);
+        AddField("skin", new LuaSkin(skin));
+        AddField("map", new LuaMap(map, Lua));
 
         AddFunction("Add", add);
 
@@ -36,10 +40,12 @@ public class StoryboardScriptRunner : ScriptRunner
 
         // elements
         AddFunction("StoryboardBox", newBox);
+        AddFunction("StoryboardOutlineBox", newOutlineBox);
         AddFunction("StoryboardSprite", newSprite);
         AddFunction("StoryboardText", newText);
         AddFunction("StoryboardCircle", newCircle);
         AddFunction("StoryboardOutlineCircle", newOutlineCircle);
+        AddFunction("StoryboardSkinSprite", newSkinSprite);
     }
 
     public void Process(StoryboardElement element)
@@ -69,6 +75,9 @@ public class StoryboardScriptRunner : ScriptRunner
     [LuaGlobal(Name = "StoryboardBox")]
     private LuaStoryboardBox newBox() => new();
 
+    [LuaGlobal(Name = "StoryboardOutlineBox")]
+    private LuaStoryboardOutlineBox newOutlineBox() => new();
+
     [LuaGlobal(Name = "StoryboardSprite")]
     private LuaStoryboardSprite newSprite() => new();
 
@@ -80,4 +89,8 @@ public class StoryboardScriptRunner : ScriptRunner
 
     [LuaGlobal(Name = "StoryboardOutlineCircle")]
     private LuaStoryboardOutlineCircle newOutlineCircle() => new();
+
+    [LuaGlobal(Name = "StoryboardSkinSprite")]
+    private LuaStoryboardSkinSprite newSkinSprite([LuaCustomType(typeof(SkinSprite))] string str)
+        => new(Enum.TryParse<SkinSprite>(str, out var s) ? s : SkinSprite.HitObject);
 }

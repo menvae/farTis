@@ -10,6 +10,12 @@ namespace fluXis.Storyboards;
 public class StoryboardElement : ITimedObject
 {
     /// <summary>
+    /// Custom label for this element, only gets used in the editor.
+    /// </summary>
+    [JsonProperty("label")]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>
     /// The type of the element.
     /// </summary>
     [JsonProperty("type")]
@@ -56,6 +62,9 @@ public class StoryboardElement : ITimedObject
     [JsonProperty("blend")]
     public bool Blending { get; set; }
 
+    [JsonProperty("blend-mode")]
+    public DefaultBlendingParameters BlendingMode { get; set; } = DefaultBlendingParameters.Add;
+
     [JsonProperty("width")]
     public float Width { get; set; }
 
@@ -93,6 +102,9 @@ public class StoryboardElement : ITimedObject
 public enum StoryboardElementType
 {
     [Icon(0xf0c8)]
+    [WidthHeight]
+    [AllowedAnimation(StoryboardAnimationType.Width)]
+    [AllowedAnimation(StoryboardAnimationType.Height)]
     Box = 0,
 
     [Icon(0xf03e)]
@@ -105,10 +117,32 @@ public enum StoryboardElementType
     Script = 3,
 
     [Icon(0xf111)]
+    [WidthHeight]
+    [AllowedAnimation(StoryboardAnimationType.Width)]
+    [AllowedAnimation(StoryboardAnimationType.Height)]
+    [AllowedAnimation(StoryboardAnimationType.Rotate, true)]
     Circle = 4,
 
     [Icon(0xf111, Regular = true)]
-    OutlineCircle = 5
+    [WidthHeight]
+    [AllowedAnimation(StoryboardAnimationType.Width)]
+    [AllowedAnimation(StoryboardAnimationType.Height)]
+    [AllowedAnimation(StoryboardAnimationType.Border)]
+    [AllowedAnimation(StoryboardAnimationType.Rotate, true)]
+    OutlineCircle = 5,
+
+    [Icon(0xf1fc)]
+    [WidthHeight]
+    [AllowedAnimation(StoryboardAnimationType.Width)]
+    [AllowedAnimation(StoryboardAnimationType.Height)]
+    SkinSprite = 6,
+
+    [Icon(0xf0c8, Regular = true)]
+    [WidthHeight]
+    [AllowedAnimation(StoryboardAnimationType.Width)]
+    [AllowedAnimation(StoryboardAnimationType.Height)]
+    [AllowedAnimation(StoryboardAnimationType.Border)]
+    OutlineBox = 7,
 }
 
 public enum StoryboardLayer
@@ -116,4 +150,25 @@ public enum StoryboardLayer
     Background = 0,
     Foreground = 1,
     Overlay = 2
+}
+
+public enum SkinSprite
+{
+    HitObject,
+    LongNoteStart,
+    LongNoteBody,
+    LongNoteEnd,
+    TickNote,
+    TickNoteSmall,
+    Receptor,
+
+    StageBackground,
+    StageBackgroundTop,
+    StageBackgroundBottom,
+    StageLeftTop,
+    StageLeft,
+    StageLeftBottom,
+    StageRightTop,
+    StageRight,
+    StageRightBottom,
 }

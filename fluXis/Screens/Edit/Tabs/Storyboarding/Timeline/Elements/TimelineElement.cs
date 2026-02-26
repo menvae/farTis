@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using fluXis.Graphics.Sprites.Icons;
 using fluXis.Graphics.Sprites.Text;
 using fluXis.Graphics.UserInterface.Color;
@@ -18,6 +19,8 @@ namespace fluXis.Screens.Edit.Tabs.Storyboarding.Timeline.Elements;
 
 public partial class TimelineElement : CompositeDrawable
 {
+    public const int HEIGHT = 32;
+
     [Resolved]
     private StoryboardTimeline timeline { get; set; }
 
@@ -26,8 +29,8 @@ public partial class TimelineElement : CompositeDrawable
 
     public StoryboardElement Element { get; }
 
+    private FluXisSpriteIcon icon;
     private TruncatingText text;
-    private DragHandle handle;
 
     public TimelineElement(StoryboardElement element)
     {
@@ -46,18 +49,21 @@ public partial class TimelineElement : CompositeDrawable
     [BackgroundDependencyLoader]
     private void load()
     {
-        Height = 36;
+        Height = HEIGHT;
+
+        var color = GetColor(Element.Type);
+        var textColor = Theme.IsBright(color) ? Theme.TextDark : Theme.Text;
 
         InternalChildren = new Drawable[]
         {
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Theme.Highlight,
-                CornerRadius = 6,
+                Colour = color,
+                CornerRadius = 4,
                 Masking = true,
-                BorderThickness = 4,
-                BorderColour = Theme.Highlight.Lighten(1f),
+                BorderThickness = 2,
+                BorderColour = color.Darken(.3f),
                 Child = new Box { RelativeSizeAxes = Axes.Both }
             },
             new GridContainer
@@ -65,7 +71,7 @@ public partial class TimelineElement : CompositeDrawable
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new Dimension[]
                 {
-                    new(GridSizeMode.Absolute, 36),
+                    new(GridSizeMode.AutoSize, minSize: HEIGHT),
                     new(),
                     new(GridSizeMode.Absolute, 28)
                 },
@@ -73,38 +79,44 @@ public partial class TimelineElement : CompositeDrawable
                 {
                     new Drawable[]
                     {
-                        new FluXisSpriteIcon
+                        icon = new FluXisSpriteIcon
                         {
-                            Size = new Vector2(16),
+                            Size = new Vector2(14),
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Icon = Element.Type.GetIcon()
+                            Icon = Element.Type.GetIcon(),
+                            Colour = textColor
                         },
                         text = new TruncatingText
                         {
                             RelativeSizeAxes = Axes.X,
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            Padding = new MarginPadding { Left = -2, Right = 14 },
-                            WebFontSize = 12
+                            Padding = new MarginPadding { Left = -2, Right = 6 },
+                            WebFontSize = 12,
+                            Colour = textColor
                         },
-                        handle = new DragHandle { Alpha = 0 }
+                        new DragHandle { Colour = textColor }
                     }
                 }
             },
         };
     }
 
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-        UpdateText();
-    }
-
     public void UpdateText()
     {
+        if (!string.IsNullOrWhiteSpace(Element.Label))
+        {
+            text.Text = Element.Label;
+            return;
+        }
+
         switch (Element.Type)
         {
+            case StoryboardElementType.Box:
+                text.Text = Colour4.FromRGBA(Element.Color).ToHex();
+                break;
+
             case StoryboardElementType.Text:
                 text.Text = Element.GetParameter("text", "");
                 break;
@@ -135,6 +147,17 @@ public partial class TimelineElement : CompositeDrawable
         }
     }
 
+    public static Colour4 GetColor(StoryboardElementType type) => type switch
+    {
+        StoryboardElementType.Box or StoryboardElementType.OutlineBox => Theme.Red,
+        StoryboardElementType.Sprite => Theme.Orange,
+        StoryboardElementType.Text => Theme.Yellow,
+        StoryboardElementType.Script => Theme.Lime,
+        StoryboardElementType.Circle or StoryboardElementType.OutlineCircle => Theme.Green,
+        StoryboardElementType.SkinSprite => Theme.Aqua,
+        _ => Theme.Highlight
+    };
+
     protected override void Update()
     {
         base.Update();
@@ -145,17 +168,11 @@ public partial class TimelineElement : CompositeDrawable
         Width = end - start;
         X = start;
         Y = timeline.PositionAtZ(Element.ZIndex);
-    }
 
-    protected override bool OnHover(HoverEvent e)
-    {
-        handle.FadeIn(200);
-        return true;
-    }
+        if (X <= Parent!.DrawWidth && X + Width > 0)
+            UpdateText();
 
-    protected override void OnHoverLost(HoverLostEvent e)
-    {
-        handle.FadeOut(200);
+        icon.Margin = new MarginPadding { Left = -Math.Min(X - 12, -9), Right = 9 };
     }
 
     /// <summary>
@@ -189,7 +206,7 @@ public partial class TimelineElement : CompositeDrawable
 
         protected override void OnHoverLost(HoverLostEvent e)
         {
-            handle.FadeTo(.6f, 600).ResizeWidthTo(4, 400, Easing.OutQuint);
+            handle.FadeTo(0f, 600).ResizeWidthTo(4, 400, Easing.OutQuint);
             base.OnHoverLost(e);
         }
     }

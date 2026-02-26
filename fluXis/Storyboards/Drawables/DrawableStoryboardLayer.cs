@@ -49,6 +49,8 @@ public partial class DrawableStoryboardLayer : DrawSizePreservingFillContainer
                 StoryboardElementType.Script => null,
                 StoryboardElementType.Circle => new DrawableStoryboardCircle(element),
                 StoryboardElementType.OutlineCircle => new DrawableStoryboardOutlineCircle(element),
+                StoryboardElementType.SkinSprite => new DrawableStoryboardSkinSprite(element),
+                StoryboardElementType.OutlineBox => new DrawableStoryboardOutlineBox(element),
                 _ => new DrawableStoryboardElement(element)
             };
 
@@ -66,7 +68,6 @@ public partial class DrawableStoryboardLayer : DrawSizePreservingFillContainer
             Size = TargetDrawSize,
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
-            Masking = true,
             Clock = clock
         };
 
@@ -96,7 +97,7 @@ public partial class DrawableStoryboardLayer : DrawSizePreservingFillContainer
 
         var toRemove = container.Children.Where(c => c.Element.EndTime < clock.CurrentTime).ToList();
 
-        foreach (var drawable in toRemove.OrderByDescending(x => x.Element.EndTime))
+        foreach (var drawable in toRemove.OrderBy(x => x.Element.EndTime))
         {
             container.Remove(drawable, false);
             past.Push(drawable);

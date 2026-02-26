@@ -19,8 +19,10 @@ public partial class EditorTimeline : Container
     private EditorMap map { get; set; }
 
     private TimelineIndicator indicator;
-    private Container chorusPoints;
-    private Container timingPoints;
+
+    private const double debounce = 50;
+
+    private double? lastSeekTime;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -37,41 +39,22 @@ public partial class EditorTimeline : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
             },
-            chorusPoints = new Container
-            {
-                RelativeSizeAxes = Axes.X,
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Height = 8,
-                Y = -20
-            },
-            timingPoints = new Container
-            {
-                Colour = Theme.Text,
-                RelativeSizeAxes = Axes.X,
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Height = 8,
-                Y = -8
-            },
+            new TimelineTagContainer() { Offset = 10 },
             new TimelineDensity(),
             indicator = new TimelineIndicator()
         };
+    }
 
-        foreach (var timingPoint in map.MapInfo.TimingPoints)
+    protected override void Update()
+    {
+        base.Update();
+
+        if (!IsDragged)
         {
-            var x = timingPoint.Time == 0 ? 0 : timingPoint.Time / clock.TrackLength;
+            var x = clock.CurrentTime / clock.TrackLength;
             if (!double.IsFinite(x) || double.IsNaN(x)) x = 0;
 
-            timingPoints.Add(new Triangle
-            {
-                RelativePositionAxes = Axes.X,
-                Size = new Vector2(8),
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.Centre,
-                Rotation = 180,
-                X = (float)x
-            });
+            indicator.X = (float)x;
         }
     }
 
@@ -80,7 +63,7 @@ public partial class EditorTimeline : Container
         if (e.Button != MouseButton.Left)
             return false;
 
-        seekToMousePosition(e.MousePosition);
+        seekToMousePosition(e.MousePosition, instant: true);
         return true;
     }
 
@@ -89,25 +72,33 @@ public partial class EditorTimeline : Container
         if (e.Button != MouseButton.Left)
             return false;
 
-        seekToMousePosition(e.MousePosition);
+        seekToMousePosition(e.MousePosition, instant: false);
         return true;
     }
 
-    protected override void OnDrag(DragEvent e) => seekToMousePosition(e.MousePosition);
+    protected override void OnDrag(DragEvent e) => seekToMousePosition(e.MousePosition, instant: false);
 
-    private void seekToMousePosition(Vector2 position)
+    protected override void OnDragEnd(DragEndEvent e)
+    {
+        base.OnDragEnd(e);
+        seekToMousePosition(e.MousePosition, instant: true);
+    }
+
+    private void seekToMousePosition(Vector2 position, bool instant)
     {
         // why is there a 20px offset??
         float x = Math.Clamp(position.X - 20, 0, DrawWidth);
         float progress = x / DrawWidth;
-        clock.SeekSmoothly(progress * clock.TrackLength);
-    }
+        double targetTime = progress * clock.TrackLength;
 
-    protected override void Update()
-    {
-        var x = clock.CurrentTime / clock.TrackLength;
-        if (!double.IsFinite(x) || double.IsNaN(x)) x = 0;
+        var indicatorPos = targetTime / clock.TrackLength;
+        if (!double.IsFinite(indicatorPos) || double.IsNaN(indicatorPos)) indicatorPos = 0;
+        indicator.X = (float)indicatorPos;
 
-        indicator.X = (float)x;
+        if (!instant && lastSeekTime != null && Time.Current - lastSeekTime < debounce)
+            return;
+
+        clock.SeekSmoothly(targetTime);
+        lastSeekTime = instant ? null : Time.Current;
     }
 }

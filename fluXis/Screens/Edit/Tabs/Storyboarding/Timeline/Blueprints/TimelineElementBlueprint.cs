@@ -4,6 +4,7 @@ using fluXis.Graphics.Sprites.Icons;
 using fluXis.Graphics.UserInterface.Menus;
 using fluXis.Graphics.UserInterface.Menus.Items;
 using fluXis.Screens.Edit.Blueprints.Selection;
+using fluXis.Screens.Edit.Tabs.Storyboarding.Timeline.Elements;
 using fluXis.Storyboards;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -12,6 +13,7 @@ using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
+using osu.Framework.Platform;
 using osuTK;
 using osuTK.Input;
 
@@ -42,7 +44,7 @@ public partial class TimelineElementBlueprint : SelectionBlueprint<StoryboardEle
     public TimelineElementBlueprint(StoryboardElement element)
         : base(element)
     {
-        Height = 36;
+        Height = TimelineElement.HEIGHT;
         Anchor = Origin = Anchor.TopLeft;
 
         InternalChildren = new Drawable[]
@@ -58,7 +60,7 @@ public partial class TimelineElementBlueprint : SelectionBlueprint<StoryboardEle
                     Alpha = .2f
                 }
             },
-            new BlueprintHandle
+            new BlueprintHandle(this)
             {
                 DragAction = vec =>
                 {
@@ -96,13 +98,18 @@ public partial class TimelineElementBlueprint : SelectionBlueprint<StoryboardEle
         storyboard.Remove(Object);
     }
 
-    private partial class BlueprintHandle : Drawable
+    private partial class BlueprintHandle : Drawable, IHasCursorType
     {
+        CursorType IHasCursorType.Cursor => parent.IsSelected ? CursorType.SizeHorizontal : CursorType.Ignore;
+
+        private readonly TimelineElementBlueprint parent;
+
         public Action<Vector2> DragAction { get; init; }
         public Action StopAction { get; init; }
 
-        public BlueprintHandle()
+        public BlueprintHandle(TimelineElementBlueprint parent)
         {
+            this.parent = parent;
             Size = new Vector2(28, 36);
             Anchor = Origin = Anchor.CentreRight;
         }

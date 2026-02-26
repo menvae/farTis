@@ -166,6 +166,10 @@ public partial class SetupTab : EditorTab
                                                 {
                                                     Entries = new Drawable[]
                                                     {
+                                                        new SetupToggle("Force 16:9 Aspect Ratio", map.MapInfo.Force16By9)
+                                                        {
+                                                            OnChange = value => map.MapInfo.Force16By9 = value
+                                                        },
                                                         new SetupToggle("New Lane Switch Layout", map.MapInfo.NewLaneSwitchLayout)
                                                         {
                                                             TooltipText = "Improves the 6k and 8k layouts for lane switches",
@@ -175,7 +179,7 @@ public partial class SetupTab : EditorTab
                                                                 map.MapEvents.LaneSwitchEvents.ForEach(map.Update);
                                                             }
                                                         },
-                                                        new SetupSlider<int>("Extra Playfields", map.MapInfo.ExtraPlayfields, 0, 5, 1)
+                                                        new SetupSlider<int>("Extra Playfields", map.MapInfo.ExtraPlayfields, 0, 9, 1)
                                                         {
                                                             Format = "0",
                                                             OnChange = value => map.MapInfo.ExtraPlayfields = value
