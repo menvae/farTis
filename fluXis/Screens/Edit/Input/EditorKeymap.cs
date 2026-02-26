@@ -10,7 +10,7 @@ public class EditorKeymap
     public bool InvertScroll { get; set; }
 
     [JsonProperty("laneswitch_interact")]
-    public bool LaneSwitchInteraction { get; set; }
+    public bool LaneSwitchInteraction { get; set; } = true;
 
     [JsonProperty("scroll")]
     public Scrolling Scroll { get; set; } = new();
