@@ -125,10 +125,7 @@ public partial class EditorVariableNumber<T> : EditorVariableTextBox, IHasCursor
     protected void UpdateText()
     {
         var text = bind.Value.ToString(Formatting, CultureInfo.InvariantCulture);
-        if (TextBox == null)
-            Schedule(() => TextBox!.Text = text);
-        else
-            TextBox.Text = text;
+        Schedule(() => TextBox.Text = text);
     }
 
     protected override void EvalCommit(FluXisTextBox box)
@@ -138,9 +135,10 @@ public partial class EditorVariableNumber<T> : EditorVariableTextBox, IHasCursor
         if (box.Text.TryEvaluateTo<T>(out var result))
         {
             UpdateValue(result, true);
-            UpdateText();
         }
         else
             box.NotifyError();
+
+        UpdateText();
     }
 }

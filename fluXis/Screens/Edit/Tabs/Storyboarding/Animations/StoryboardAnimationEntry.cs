@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using fluXis.Graphics.Containers;
 using fluXis.Graphics.Sprites.Icons;
 using fluXis.Graphics.Sprites.Outline;
@@ -152,7 +151,7 @@ public partial class StoryboardAnimationEntry : CompositeDrawable, IHasPopover
                     OnCommit = t =>
                     {
                         if (t is not null && validate(t.Text, out var parsed)) t.Text = parsed;
-                        else t.NotifyError();
+                        else { t.Text = Animation.ValueStart; t.NotifyError(); }
                     }
                 },
                 new EditorVariableTextBox
@@ -169,7 +168,7 @@ public partial class StoryboardAnimationEntry : CompositeDrawable, IHasPopover
                     OnCommit = t =>
                     {
                         if (t is not null && validate(t.Text, out var parsed)) t.Text = parsed;
-                        else t.NotifyError();
+                        else { t.Text = Animation.ValueEnd; t.NotifyError(); }
                     }
                 },
                 new EditorVariableEasing<StoryboardAnimation>(map, Animation),

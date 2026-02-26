@@ -469,38 +469,30 @@ public partial class StoryboardElementSettings : CompositeDrawable
                             }
                             else if (parameter.Type == typeof(int))
                             {
-                                drawables.Add(new EditorVariableTextBox
+                                drawables.Add(new EditorVariableNumber<int>
                                 {
                                     Text = parameter.Title,
-                                    CurrentValue = item.GetParameter(parameter.Key, parameter.GetDefaultFallback<int>()).ToString(),
-                                    OnValueChanged = box =>
+                                    CurrentValue = item.GetParameter(parameter.Key, parameter.GetDefaultFallback<int>()),
+                                    OnValueChanged = v =>
                                     {
-                                        if (box.Text.TryEvaluateTo<int>(out var result))
-                                            item.Parameters[parameter.Key] = result;
-                                        else
-                                            box.NotifyError();
-
+                                        item.Parameters[parameter.Key] = v;
                                         map.Update(item);
-                                    },
-                                    CommitEvalType = typeof(int)
+                                    }
                                 });
                             }
                             else if (parameter.Type == typeof(float))
                             {
-                                drawables.Add(new EditorVariableTextBox
+                                drawables.Add(new EditorVariableNumber<float>
                                 {
                                     Text = parameter.Title,
-                                    CurrentValue = item.GetParameter(parameter.Key, parameter.GetDefaultFallback<float>()).ToStringInvariant(),
-                                    OnValueChanged = box =>
+                                    CurrentValue = item.GetParameter(parameter.Key, parameter.GetDefaultFallback<float>()),
+                                    Step = 0.1f,
+                                    Formatting = "G7",
+                                    OnValueChanged = v =>
                                     {
-                                        if (box.Text.TryEvaluateTo<float>(out var result))
-                                            item.Parameters[parameter.Key] = result;
-                                        else
-                                            box.NotifyError();
-
+                                        item.Parameters[parameter.Key] = v;
                                         map.Update(item);
-                                    },
-                                    CommitEvalType = typeof(float)
+                                    }
                                 });
                             }
                             else if (parameter.Type == typeof(bool))
