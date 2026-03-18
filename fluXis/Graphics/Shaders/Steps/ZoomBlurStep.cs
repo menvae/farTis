@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using fluXis.Map.Structures.Events;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Shaders.Types;
+using osu.Framework.Utils;
 using osuTK;
 
 namespace fluXis.Graphics.Shaders.Steps;
@@ -11,7 +12,7 @@ public class ZoomBlurStep : ShaderStep<ZoomBlurStep.BlurParameters>
     protected override string FragmentShader => "ZoomBlur";
     public override ShaderType Type => ShaderType.ZoomBlur;
 
-    public override bool ShouldRender => Strength != 0;
+    public override bool ShouldRender => !Precision.AlmostEquals(Strength, 0);
 
     private float centerX { get; set; }
     private float centerY { get; set; }
