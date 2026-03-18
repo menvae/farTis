@@ -126,6 +126,10 @@ public partial class ShaderStackContainer : CompositeDrawable, IBufferedDrawable
         ShaderType.SplitScreen => new SplitScreenShaderStep(),
         ShaderType.FishEye => new FishEyeShaderStep(),
         ShaderType.Reflections => new ReflectionsShaderStep(),
+        ShaderType.GaussianBlur => new GaussianBlurStep(),
+        ShaderType.RadialBlur => new RadialBlurStep(),
+        ShaderType.ZoomBlur => new ZoomBlurStep(),
+        ShaderType.MotionBlur => new MotionBlurStep(),
         _ => null
     };
 
