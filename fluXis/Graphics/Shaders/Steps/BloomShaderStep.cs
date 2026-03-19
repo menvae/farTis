@@ -22,6 +22,7 @@ public class BloomShaderStep : ShaderStep<BloomShaderStep.BlurParameters>
     private int kernelRadius;
     private float sigma;
     private Vector2 direction;
+    private Vector2 downscaleScale = new Vector2(0.5f); // put any scale here
 
     public override void EnsureParameters(IRenderer renderer)
     {
@@ -40,7 +41,8 @@ public class BloomShaderStep : ShaderStep<BloomShaderStep.BlurParameters>
         };
         composeParameterBuffer.Data = composeParameterBuffer.Data with
         {
-            Strength = Strength
+            Strength = Strength,
+            TexSize = downscaleScale
         };
     }
 
@@ -56,7 +58,7 @@ public class BloomShaderStep : ShaderStep<BloomShaderStep.BlurParameters>
     private void drawBlurPass(IRenderer renderer, IFrameBuffer src, IFrameBuffer dst, Vector2 blurDirection)
     {
         direction = blurDirection;
-        UpdateParameters(src);
+        UpdateParameters(dst);
         Shader.BindUniformBlock($"m_{nameof(BlurParameters)}", ParameterBuffer);
         dst.Bind();
         Shader.Bind();
@@ -74,18 +76,19 @@ public class BloomShaderStep : ShaderStep<BloomShaderStep.BlurParameters>
         DrawColor = Colour4.White;
 
         buffer ??= renderer.CreateFrameBuffer();
-        buffer.Size = current.Size;
+        buffer.Size = current.Size * downscaleScale;
         buffer2 ??= renderer.CreateFrameBuffer();
-        buffer2.Size = current.Size;
+        buffer2.Size = current.Size * downscaleScale;
 
         target.Unbind();
 
         drawBlurPass(renderer, current, buffer, Vector2.UnitX);
         drawBlurPass(renderer, buffer, buffer2, Vector2.UnitY);
 
+        UpdateParameters(current);
         blurComposeShader.BindUniformBlock($"m_{nameof(BlurComposeParameters)}", composeParameterBuffer);
+        //render composition
         target.Bind();
-
         blurComposeShader.Bind();
         renderer.BindTexture(buffer2.Texture, 1);
         DrawFrameBuffer(renderer, current);
@@ -105,7 +108,8 @@ public class BloomShaderStep : ShaderStep<BloomShaderStep.BlurParameters>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public record struct BlurComposeParameters
     {
+        public UniformVector2 TexSize;
         public UniformFloat Strength;
-        private readonly UniformPadding12 pad1;
+        private readonly UniformPadding4 pad1;
     }
 }
