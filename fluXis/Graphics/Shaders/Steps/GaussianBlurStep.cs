@@ -10,14 +10,14 @@ namespace fluXis.Graphics.Shaders.Steps;
 
 public class GaussianBlurStep : ShaderStep<GaussianBlurStep.BlurParameters>
 {
-    protected override string FragmentShader => "GaussianBlur";
+    protected override string FragmentShader => "Blur";
     public override ShaderType Type => ShaderType.GaussianBlur;
 
     private int kernelRadius;
     private float sigma;
     private Vector2 direction;
 
-    private const float max_blur = 32f;
+    private const float max_sigma = 32f;
 
     public override void UpdateParameters(IFrameBuffer current) => ParameterBuffer.Data = ParameterBuffer.Data with
     {
@@ -44,7 +44,7 @@ public class GaussianBlurStep : ShaderStep<GaussianBlurStep.BlurParameters>
 
     public override void DrawBuffer(IRenderer renderer, IFrameBuffer current, IFrameBuffer target)
     {
-        sigma = max_blur * Strength;
+        sigma = max_sigma * Strength;
         kernelRadius = Blur.KernelSize(sigma);
         DrawColor = Colour4.White;
 

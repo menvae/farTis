@@ -141,7 +141,7 @@ public enum ShaderType
 
     GaussianBlur,
 
-    [ShaderStrength(1, Min = -2f, Max = 2f)]
+    [ShaderStrength(1, Min = -1f)]
     [ShaderStrength(2, Min = -1f, ParamName = "CenterX", Tooltip = "Horizontal center of the blur.")]
     [ShaderStrength(3, Min = -1f, ParamName = "CenterY", Tooltip = "Vertical center of the blur.")]
     RadialBlur,

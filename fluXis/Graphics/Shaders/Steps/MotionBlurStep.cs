@@ -8,9 +8,9 @@ using osuTK;
 
 namespace fluXis.Graphics.Shaders.Steps;
 
-public class MotionBlurStep : ShaderStep<MotionBlurStep.MotionBlurParameters>
+public class MotionBlurStep : ShaderStep<MotionBlurStep.BlurParameters>
 {
-    protected override string FragmentShader => "MotionBlur";
+    protected override string FragmentShader => "Blur";
     public override ShaderType Type => ShaderType.MotionBlur;
 
     public override bool ShouldRender => Strength > 0;
@@ -24,23 +24,23 @@ public class MotionBlurStep : ShaderStep<MotionBlurStep.MotionBlurParameters>
         }
     }
 
-    private const float max_blur = 32f;
+    private const float max_sigma = 40f;
 
     public override void UpdateParameters(IFrameBuffer current) => ParameterBuffer.Data = ParameterBuffer.Data with
     {
         TexSize = current.Size,
         Direction = blurDirection,
-        Radius = Blur.KernelSize(Strength * max_blur),
-        Sigma = Strength * max_blur
+        Radius = Blur.KernelSize(Strength * max_sigma),
+        Sigma = Strength * max_sigma
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public record struct MotionBlurParameters
+    public record struct BlurParameters
     {
         public UniformVector2 TexSize;
-        public UniformVector2 Direction;
         public UniformInt Radius;
         public UniformFloat Sigma;
+        public UniformVector2 Direction;
         private readonly UniformPadding8 pad1;
     }
 }

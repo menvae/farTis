@@ -2,6 +2,7 @@ layout(std140, set = 0, binding = 0) uniform m_BlurParameters
 {
     vec2 g_TexSize;
     float g_Sigma;
+    int g_Samples;
     vec2 g_Pos;
 };
 
@@ -10,8 +11,6 @@ layout(set = 1, binding = 1) uniform sampler m_Sampler;
 
 layout(location = 2) in vec2 v_TexCoord;
 layout(location = 0) out vec4 o_Colour;
-
-#define SAMPLES 128
 
 void main()
 {
@@ -22,7 +21,7 @@ void main()
     float invAspect = 1.0 / aspect;
     delta.x *= aspect;
 
-    float angleStep = ((g_Sigma - 0.5) * 4.0) / float(SAMPLES);
+    float angleStep = ((g_Sigma - 0.5) * 4.0) / float(g_Samples);
     float sinStep = sin(angleStep);
     float cosStep = cos(angleStep);
 
@@ -30,7 +29,7 @@ void main()
     float validSamples = 0.0;
     vec2 rotated = delta;
 
-    for (int i = 0; i < SAMPLES; ++i)
+    for (int i = 0; i < g_Samples; ++i)
     {
         vec2 sampleUV = g_Pos + vec2(rotated.x * invAspect, rotated.y);
 

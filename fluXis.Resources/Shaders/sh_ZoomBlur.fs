@@ -2,6 +2,7 @@ layout(std140, set = 0, binding = 0) uniform m_BlurParameters
 {
     vec2 g_TexSize;
     float g_Sigma;
+    int g_Samples;
     vec2 g_Pos;
 };
 
@@ -11,20 +12,18 @@ layout(set = 1, binding = 1) uniform sampler m_Sampler;
 layout(location = 2) in vec2 v_TexCoord;
 layout(location = 0) out vec4 o_Colour;
 
-#define SAMPLES 200
-
 void main()
 {
     vec2 uv = v_TexCoord;
     vec2 delta = uv - g_Pos;
 
     float sigma = (g_Sigma - 0.5) * 4.0;
-    float scaleStep = sigma / float(SAMPLES);
+    float scaleStep = sigma / float(g_Samples);
 
     vec4 color = vec4(0.0);
     float validSamples = 0.0;
 
-    for (int i = 0; i < SAMPLES; ++i)
+    for (int i = 0; i < g_Samples; ++i)
     {
         float scale = 1.0 - float(i) * scaleStep;
         vec2 sampleUV = g_Pos + delta * scale;
