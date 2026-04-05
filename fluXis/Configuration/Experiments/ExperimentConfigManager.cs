@@ -16,11 +16,13 @@ public class ExperimentConfigManager : IniConfigManager<ExperimentConfig>
     {
         SetDefault(ExperimentConfig.ModView, false);
         SetDefault(ExperimentConfig.LrcFeatures, false);
+        SetDefault(ExperimentConfig.RenderTab, false);
     }
 }
 
 public enum ExperimentConfig
 {
     ModView,
-    LrcFeatures
+    LrcFeatures,
+    RenderTab
 }

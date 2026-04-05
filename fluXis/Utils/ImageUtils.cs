@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FFmpeg.AutoGen;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using SixLabors.ImageSharp;
@@ -47,5 +48,49 @@ public static class ImageUtils
             Logger.Error(e, "Failed to get average colour from image");
             return Colour4.Transparent;
         }
+    }
+
+    public static unsafe AVFrame* Rgba32ToAvFrame(Image<Rgba32> image)
+    {
+        var frame = ffmpeg.av_frame_alloc();
+        frame->format = (int)AVPixelFormat.AV_PIX_FMT_RGBA;
+        frame->width = image.Width;
+        frame->height = image.Height;
+
+        int bufferSize = ffmpeg.av_image_get_buffer_size(
+            AVPixelFormat.AV_PIX_FMT_RGBA, frame->width, frame->height, 1);
+
+        byte* buffer = (byte*)ffmpeg.av_malloc((ulong)bufferSize);
+
+        var data = new byte_ptrArray4();
+        var linesize = new int_array4();
+
+        ffmpeg.av_image_fill_arrays(
+            ref data, ref linesize,
+            buffer,
+            AVPixelFormat.AV_PIX_FMT_RGBA,
+            frame->width, frame->height, 1);
+
+        frame->data[0] = data[0];
+        frame->linesize[0] = linesize[0];
+
+        image.ProcessPixelRows(accessor =>
+        {
+            for (int y = 0; y < accessor.Height; y++)
+            {
+                var row = accessor.GetRowSpan(y);
+
+                fixed (void* rowPtr = row)
+                {
+                    System.Buffer.MemoryCopy(
+                        rowPtr,
+                        frame->data[0] + (y * frame->linesize[0]),
+                        frame->linesize[0],
+                        row.Length * sizeof(Rgba32));
+                }
+            }
+        });
+
+        return frame;
     }
 }

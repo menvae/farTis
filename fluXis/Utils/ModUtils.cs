@@ -44,9 +44,12 @@ public static class ModUtils
         return null;
     }
 
+    public static bool HasMod<T>(IEnumerable<IMod> combo) where T : IMod => combo.Any(m => m is T);
+
     public static bool HasIncompatibleMods(IEnumerable<IMod> combo, out IEnumerable<IMod> incompatibleMods)
     {
-        incompatibleMods = combo.Where(mod => combo.Any(otherMod => IsIncompatible(mod, otherMod)));
+        var comboList = combo.ToList();
+        incompatibleMods = comboList.Where(mod => comboList.Any(otherMod => IsIncompatible(mod, otherMod)));
         return incompatibleMods.Any();
     }
 

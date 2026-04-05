@@ -6,6 +6,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!--    <DefineConstants>CLOSED_TESTING</DefineConstants>-->
     <NoWarn>CS1591</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\fluXis.Resources\fluXis.Resources.csproj" />

@@ -27,6 +27,11 @@ public partial class ExperimentsSection : SettingsSection
             {
                 Label = ".lrc features",
                 Bindable = experiments.GetBindable<bool>(ExperimentConfig.LrcFeatures)
+            },
+            new SettingsToggle
+            {
+                Label = "Render Tab in Editor",
+                Bindable = experiments.GetBindable<bool>(ExperimentConfig.RenderTab)
             }
         });
     }
