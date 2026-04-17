@@ -4,14 +4,13 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using fluXis.Online.Fluxel;
+using NetVips;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Network;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace fluXis.Graphics.Sprites.Animated;
 
@@ -51,23 +50,24 @@ public class AnimatedSpriteStore : IResourceStore<AnimatedSpriteStore.AnimatedTe
             if (!storage.Exists(path) && !download(path, name, type))
                 return null;
 
-            using var stream = File.OpenRead(path);
-            using var image = Image.Load<Rgba32>(stream);
+            using var image = Image.NewFromFile(path, kwargs: new VOption { { "n", -1 } });
+
+            var pageCount = (int)image.Get("n-pages");
+            var pageHeight = (int)image.Get("page-height");
+            var delays = (int[])image.Get("delay");
 
             var frames = new List<AnimatedTexture>();
 
-            for (var i = 0; i < image.Frames.Count; i++)
+            for (var i = 0; i < pageCount; i++)
             {
-                var frame = image.Frames[i];
-                var meta = frame.Metadata.GetGifMetadata();
-
-                var clone = image.Frames.CloneFrame(i);
-                var upload = new TextureUpload(clone);
+                using var frame = image.Crop(0, i * pageHeight, image.Width, pageHeight);
+                var upload = new TextureUpload(frame);
 
                 var texture = atlas.Add(upload.Width, upload.Height) ?? renderer.CreateTexture(upload.Width, upload.Height);
                 texture.SetData(upload);
 
-                frames.Add(new AnimatedTexture(texture, meta.FrameDelay * 10));
+                var frameDelay = i < delays.Length ? delays[i] : 0;
+                frames.Add(new AnimatedTexture(texture, frameDelay));
             }
 
             var arr = frames.ToArray();

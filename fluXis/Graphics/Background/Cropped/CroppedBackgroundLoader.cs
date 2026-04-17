@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using NetVips;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using Image = SixLabors.ImageSharp.Image;
+using Image = NetVips.Image;
 
 namespace fluXis.Graphics.Background.Cropped;
 
@@ -48,21 +47,18 @@ public class CroppedBackgroundLoader : IResourceStore<TextureUpload>
 
     private static TextureUpload cropTexture(TextureUpload tex)
     {
-        var image = Image.LoadPixelData<Rgba32>(tex.Data.ToArray(), tex.Width, tex.Height);
+        var image = Image.NewFromMemoryCopy(tex.Data, tex.Width, tex.Height, 4, Enums.BandFormat.Uchar)
+                         .Copy(interpretation: Enums.Interpretation.Srgb);
 
         var visibleSize = new Size(1000, 100);
 
         if (visibleSize.Width > image.Width)
         {
-            var ratio = image.Width / (float)visibleSize.Width;
-            visibleSize = (Size)(visibleSize * ratio);
+            float ratio = image.Width / (float)visibleSize.Width;
+            visibleSize = new Size((int)(visibleSize.Width * ratio), (int)(visibleSize.Height * ratio));
         }
 
-        image.Mutate(x => x.Resize(new ResizeOptions
-        {
-            Size = visibleSize,
-            Mode = ResizeMode.Crop
-        }));
+        image = image.ThumbnailImage(visibleSize.Width, visibleSize.Height, crop: Enums.Interesting.Centre);
 
         return new TextureUpload(image);
     }

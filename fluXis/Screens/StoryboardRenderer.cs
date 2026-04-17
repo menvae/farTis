@@ -10,7 +10,6 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osu.Framework.Timing;
-using SixLabors.ImageSharp;
 
 namespace fluXis.Screens;
 
@@ -96,7 +95,7 @@ public partial class StoryboardRenderer : FluXisScreen
 
         var image = host.TakeScreenshotAsync().Result;
         var path = host.Storage.GetFullPath($"render/frame_{count++}.png", true);
-        image.SaveAsPng(path);
+        image.Pngsave(path);
 
         if (clock.CurrentTime >= end)
         {

@@ -8,6 +8,7 @@ using fluXis.Scoring.Enums;
 using fluXis.Skinning;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.ImageExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Rendering;
@@ -236,7 +237,7 @@ public partial class ResultsSideGraph : ResultsSideContainer
                 image.Mutate(ctx => ctx.Fill(brush, poly));
             }
 
-            var upload = new TextureUpload(image);
+            var upload = new TextureUpload(image.ToVips());
             var texture = renderer.CreateTexture(image.Width, image.Height, true);
             texture.BypassTextureUploadQueueing = true;
             texture.SetData(upload);
