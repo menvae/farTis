@@ -75,6 +75,12 @@ local __StoryboardElement = {}
 ---@param ease Easing the easing function used for this animation
 function __StoryboardElement:animate(type, time, len, startVal, endVal, ease) end
 
+---applies a new property change
+---@param property string the property to change
+---@param time number when this property should change in ms (absolute from map start)
+---@param newVal string the new value this property will have (input based on type)
+function __StoryboardElement:changeProperty(property, time, newVal) end
+
 ---@param key string
 ---@param fallback any
 ---@return any

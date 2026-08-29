@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using fluXis.Map.Structures.Bases;
 using fluXis.Utils.Extensions;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Logging;
 
 namespace fluXis.Storyboards.Drawables;
 
-public partial class DrawableStoryboardElement : CompositeDrawable
+public partial class DrawableStoryboardElement : CompositeDrawable, IHasMutableProperties
 {
     protected virtual bool AllowBorder => false;
     public StoryboardElement Element { get; }
@@ -34,7 +37,42 @@ public partial class DrawableStoryboardElement : CompositeDrawable
         Blending = Element.Blending ? BlendingParameters.GetDefaultParameters(Element.BlendingMode) : BlendingParameters.Mixture;
 
         var anims = Element.Animations.OrderBy(x => x.StartTime).ToList();
+        var propChanges = Element.PropertyChanges.OrderBy(x => x.Time).ToList();
 
+        buildAnimations(anims);
+        buildPropertyChanges(propChanges);
+    }
+
+    private void buildPropertyChanges(List<StoryboardPropertyChange> propChanges)
+    {
+        var mutableProps = ((IHasMutableProperties)this).MutableProperties;
+
+        foreach (var propertyChange in propChanges)
+        {
+            if (!mutableProps.TryGetValue(propertyChange.PropertyKey, out var prop)) continue;
+
+            try
+            {
+                var convertedProp = StoryboardElement.ConvertProperty(propertyChange.Value, prop.PropertyType);
+                if (convertedProp == null) continue;
+
+                using (BeginAbsoluteSequence(Element.StartTime + propertyChange.Time))
+                {
+                    TransformableExtensions.TransformTo((dynamic)this, prop.Name, (dynamic)convertedProp, 0);
+                }
+            }
+            catch (Exception e)
+            {
+                // TODO:
+                // There are some unhandled exceptions that shouldn't happen when moving/rescaling element.
+                // look into later...
+                Logger.Log($"Failed to apply property transform: {e}");
+            }
+        }
+    }
+
+    private void buildAnimations(List<StoryboardAnimation> anims)
+    {
         foreach (var animation in anims)
         {
             using (BeginAbsoluteSequence(Element.StartTime + animation.StartTime))

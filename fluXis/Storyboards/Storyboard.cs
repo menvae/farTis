@@ -53,6 +53,7 @@ public class Storyboard : EditorMap.IChangeNotifier
         {
             case 2:
                 Elements.ForEach(e => e.Animations.ForEach(a => a.StartTime -= e.StartTime));
+                Elements.ForEach(e => e.PropertyChanges.ForEach(a => a.Time -= e.StartTime));
                 break;
         }
 

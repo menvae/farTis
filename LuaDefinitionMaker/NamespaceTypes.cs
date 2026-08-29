@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using fluXis.Scripting.Attributes;
 using NLua;
@@ -19,6 +20,8 @@ public class NamespaceTypes : LuaType
         // will define types for all classes and structs
         this.types = types.Where(t =>
             !t.IsAbstract &&
+            !t.IsDefined(typeof(CompilerGeneratedAttribute), false) &&
+            !t.Name.Contains('<') &&
             namespaces.Contains(t.Namespace) &&
             (t.IsClass || t is { IsValueType: true, IsPrimitive: false, IsEnum: false })
         );
@@ -35,6 +38,9 @@ public class NamespaceTypes : LuaType
     {
         foreach (var type in types)
         {
+            if (type.GetCustomAttribute<LuaHideAttribute>(true) != null)
+                continue;
+
             var existingDefAttr = type.GetCustomAttribute<LuaDefinitionAttribute>(false);
             var existingMemberAttr = type.GetCustomAttribute<LuaMemberAttribute>(false);
 

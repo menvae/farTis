@@ -58,6 +58,9 @@ public class LuaStoryboardElement : ILuaModel
     public List<LuaStoryboardAnimation> Animations { get; set; } = new();
 
     [LuaHide]
+    public List<LuaStoryboardPropertyChange> PropertyChanges { get; set; } = new();
+
+    [LuaHide]
     public Dictionary<string, JToken> ExtraParameters { get; set; } = new();
 
 #nullable enable
@@ -81,6 +84,21 @@ public class LuaStoryboardElement : ILuaModel
             UseStartValue = startVal != null,
             Start = startVal ?? "",
             End = endVal,
+        });
+
+    /// <summary>
+    /// applies a new property change
+    /// </summary>
+    /// <param name="property">the property to change</param>
+    /// <param name="time">when this property should change in ms (absolute from map start)</param>
+    /// <param name="newVal">the new value this property will have (input based on type)</param>
+    [LuaMember(Name = "changeProperty")]
+    public void AddPropertyChange(string property, float time, string newVal) =>
+        PropertyChanges.Add(new LuaStoryboardPropertyChange
+        {
+            Time = time,
+            PropertyKey = property,
+            Value = newVal
         });
 #nullable restore
 
@@ -110,7 +128,8 @@ public class LuaStoryboardElement : ILuaModel
         Width = Width,
         Height = Height,
         Color = Color,
-        Animations = Animations.Select(a => a.Build()).ToList()
+        Animations = [.. Animations.Select(a => a.Build())],
+        PropertyChanges = [.. PropertyChanges.Select(a => a.Build())]
     };
 
     public static LuaStoryboardElement FromElement(StoryboardElement element) => new()

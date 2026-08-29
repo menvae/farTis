@@ -37,6 +37,7 @@ HitObject = {}
 
 ---@class HitSoundFade
 ---@field time number The time at which the volume change should start.
+---@field lane number
 ---@field hitSound string The sound to change the volume of.
 ---@field volume number The volume to fade to.
 ---@field duration number The duration of the fade.
@@ -45,6 +46,7 @@ HitSoundFade = {}
 
 ---@class ScrollVelocity
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field multiplier number
 ---@field groups string[]
@@ -53,6 +55,7 @@ ScrollVelocity = {}
 
 ---@class TimingPoint
 ---@field time number
+---@field lane number
 ---@field bpm number
 ---@field signature number
 ---@field hideLines boolean

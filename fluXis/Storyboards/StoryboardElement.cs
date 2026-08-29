@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using fluXis.Map.Structures.Bases;
 using fluXis.Utils.Attributes;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using osu.Framework.Graphics;
+using osu.Framework.Localisation;
 
 namespace fluXis.Storyboards;
 
@@ -80,6 +84,9 @@ public class StoryboardElement : ITimedObject
     [JsonProperty("animations")]
     public List<StoryboardAnimation> Animations { get; set; } = new();
 
+    [JsonProperty("property-changes")]
+    public List<StoryboardPropertyChange> PropertyChanges { get; set; } = new();
+
     [JsonIgnore]
     double ITimedObject.Time { get => StartTime; set => StartTime = value; }
 
@@ -102,6 +109,21 @@ public class StoryboardElement : ITimedObject
         {
             return fallback;
         }
+    }
+
+    [CanBeNull]
+    public static object ConvertProperty(string value, Type targetType)
+    {
+        targetType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+        return targetType switch
+        {
+            _ when targetType == typeof(string) => value,
+            _ when targetType == typeof(LocalisableString) => (LocalisableString)value,
+            _ when targetType == typeof(Colour4) => Colour4.FromHex(value),
+            _ when targetType.IsEnum => Enum.Parse(targetType, value, true),
+            _ => Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture)
+        };
     }
 }
 

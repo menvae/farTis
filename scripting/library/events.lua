@@ -2,6 +2,7 @@
 
 ---@class BeatPulseEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field strength number
 ---@field zoomIn number How much of the length should be used to zoom in. (in %)
@@ -10,6 +11,7 @@ BeatPulseEvent = {}
 
 ---@class ColorFadeEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field fadePrimary boolean
 ---@field primary Color4
@@ -25,6 +27,7 @@ ColorFadeEvent = {}
 
 ---@class FlashEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field duration number
 ---@field inBackground boolean
@@ -37,6 +40,7 @@ FlashEvent = {}
 
 ---@class LaneSwitchEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field count number
 ---@field duration number
@@ -45,6 +49,7 @@ LaneSwitchEvent = {}
 
 ---@class LayerFadeEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field duration number
 ---@field alpha number
@@ -56,12 +61,14 @@ LayerFadeEvent = {}
 
 ---@class NoteEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field content string
 NoteEvent = {}
 
 ---@class PulseEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field width number
 ---@field duration number
@@ -71,6 +78,7 @@ PulseEvent = {}
 
 ---@class ShaderEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field shaderName string
 ---@field duration number
@@ -89,6 +97,7 @@ ShaderParameters = {}
 
 ---@class ShakeEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field duration number
 ---@field magnitude number
@@ -96,12 +105,14 @@ ShakeEvent = {}
 
 ---@class HitObjectEaseEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field easing number
 HitObjectEaseEvent = {}
 
 ---@class ScrollMultiplierEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field duration number
 ---@field multiplier number
@@ -111,6 +122,7 @@ ScrollMultiplierEvent = {}
 
 ---@class TimeOffsetEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field duration number
 ---@field useStartValue boolean
@@ -121,6 +133,7 @@ TimeOffsetEvent = {}
 
 ---@class PlayfieldMoveEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field offsetX number
 ---@field offsetY number
@@ -133,6 +146,7 @@ PlayfieldMoveEvent = {}
 
 ---@class PlayfieldRotateEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field roll number
 ---@field duration number
@@ -143,6 +157,7 @@ PlayfieldRotateEvent = {}
 
 ---@class PlayfieldScaleEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field scaleX number
 ---@field scaleY number
@@ -154,6 +169,7 @@ PlayfieldScaleEvent = {}
 
 ---@class CameraMoveEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field x number
 ---@field y number
@@ -163,6 +179,7 @@ CameraMoveEvent = {}
 
 ---@class CameraRotateEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field roll number
 ---@field duration number
@@ -171,6 +188,7 @@ CameraRotateEvent = {}
 
 ---@class CameraScaleEvent
 ---@field time number
+---@field lane number
 ---@field group string
 ---@field scale number
 ---@field duration number

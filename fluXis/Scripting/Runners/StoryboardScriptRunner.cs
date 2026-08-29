@@ -106,6 +106,7 @@ public class StoryboardScriptRunner : ScriptRunner, IHasLoadedValue
             {
                 case 2:
                     element.Animations.ForEach(x => x.StartTime -= element.StartTime);
+                    element.PropertyChanges.ForEach(x => x.Time -= element.StartTime);
                     break;
             }
         }
